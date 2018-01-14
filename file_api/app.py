@@ -1,5 +1,5 @@
 from flask import Flask
-# from file_api.logconfig import register_logging
+import sqlite3
 
 # register_logging()
 app = Flask(__name__)

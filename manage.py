@@ -1,7 +1,8 @@
-from flask_script import Manager
+from flask_script import Manager, Server
 from file_api.main import app
 
 manager = Manager(app)
+manager.add_command("runserver", Server())
 
 
 @manager.command
