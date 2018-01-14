@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, session, url_for, request, jsonify
+from flask import Blueprint, session, request, jsonify
 from file_api.utils.driveutils import credentials_to_dict
 import os
 import logging
@@ -6,6 +6,7 @@ import google_auth_oauthlib.flow
 import google.oauth2.credentials
 import googleapiclient.discovery
 import json
+from urllib.parse import urlparse
 
 drive = Blueprint('drive', __name__)
 
@@ -48,6 +49,8 @@ def drive_request():
 def get_authorisation_url():
     # Create flow instance to manage the OAuth 2.0 Authorization Grant Flow steps.
     logger.info("Received request to authorise user")
+    logger.debug("Using the request uri of: " + DRIVE_REDIRECT_URI)
+
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         DRIVE_CLIENT_SECRETS_FILE, scopes=SCOPES)
 
@@ -64,18 +67,25 @@ def get_authorisation_url():
     return json.dumps({"status": "200", "url": authorization_url, "state": state})
 
 
-@drive.route('/get-credentials/<state>/<url>', methods=["GET"])
-def get_credentials(state, url):
+@drive.route('/get-credentials', methods=["GET"])
+def get_credentials():
+    # Retrieve parameters. As request_url is sent as a url, we have to parse it.
+    # Else the whole request will be sent to another location.
+    state = request.args.get('state')
+    request_url = urlparse(request.args.get('url')).geturl()
+
     # Specify the state when creating the flow in the callback so that it can
     # verified in the authorization server response.
     logger.info("Received request to retrieve user credentials")
+    logger.debug("With url of: " + request_url)
+    logger.debug("and redirect address of: " + DRIVE_REDIRECT_URI)
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         DRIVE_CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
 
     flow.redirect_uri = DRIVE_REDIRECT_URI
 
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
-    authorization_response = url
+    authorization_response = request_url
     flow.fetch_token(authorization_response=authorization_response)
 
     # Store credentials in the session.

@@ -6,3 +6,9 @@ client_secret.json
 
 # logging
 python_logging.log
+
+# Byte-compiled / optimized / DLL files
+file_api/__pycache__/
+*.py[cod]
+__pycache__
+*.pyc
