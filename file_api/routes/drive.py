@@ -14,6 +14,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive']
 # The client secret file is downloaded from the created project from the drive apis
 DRIVE_CLIENT_SECRETS_FILE = os.getenv("CLIENT_SECRETS_FILE")
 DRIVE_APP_SECRET_KEY = os.getenv("DRIVE_APP_SECRET_KEY")
+DRIVE_REDIRECT_URI = os.getenv("DRIVE_REDIRECT_URI")
 API_SERVICE_NAME = 'drive'
 API_VERSION = 'v2'
 
@@ -24,7 +25,7 @@ logger = logging.getLogger()
 def drive_request():
     if 'credentials' not in session:
         # If credentials are not set
-        return json.dumps({"status": "200", "authorisation_url": get_authorisation_url()})
+        return {"status": "200", "authorisation_url": get_authorisation_url()}
 
     # Load credentials from the session.
     credentials = google.oauth2.credentials.Credentials(
@@ -43,14 +44,14 @@ def drive_request():
     return jsonify(**files)
 
 
-@drive.route('/authorise', methods=["GET"])
+@drive.route('/get-authorisation-url', methods=["GET"])
 def get_authorisation_url():
     # Create flow instance to manage the OAuth 2.0 Authorization Grant Flow steps.
     logger.info("Received request to authorise user")
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         DRIVE_CLIENT_SECRETS_FILE, scopes=SCOPES)
 
-    flow.redirect_uri = url_for('drive.oauth2callback', _external=True)
+    flow.redirect_uri = DRIVE_REDIRECT_URI
 
     authorization_url, state = flow.authorization_url(
         # Enable offline access so that you can refresh an access token without
@@ -60,23 +61,21 @@ def get_authorisation_url():
         include_granted_scopes='true')
 
     # Store the state so the callback can verify the auth server response.
-    session['state'] = state
-
-    return redirect(authorization_url)
+    return json.dumps({"status": "200", "url": authorization_url, "state": state})
 
 
-@drive.route('/oauth2callback')
-def oauth2callback():
+@drive.route('/get-credentials/<state>/<url>', methods=["GET"])
+def get_credentials(state, url):
     # Specify the state when creating the flow in the callback so that it can
     # verified in the authorization server response.
-    state = session['state']
-
+    logger.info("Received request to retrieve user credentials")
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         DRIVE_CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
-    flow.redirect_uri = url_for('drive.oauth2callback', _external=True)
+
+    flow.redirect_uri = DRIVE_REDIRECT_URI
 
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
-    authorization_response = request.url
+    authorization_response = url
     flow.fetch_token(authorization_response=authorization_response)
 
     # Store credentials in the session.
@@ -85,4 +84,5 @@ def oauth2callback():
     credentials = flow.credentials
     session['credentials'] = credentials_to_dict(credentials)
 
-    return redirect(url_for('drive.drive_request'))
+    # TODO: encrypt response credentials
+    return json.dumps({"status": "200", "credentials": credentials_to_dict(credentials)})

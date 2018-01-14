@@ -5,7 +5,7 @@ manager = Manager(app)
 
 
 @manager.command
-def runserver(port=8080):
+def runserver(port=8081):
     """Run the app using flask server"""
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
