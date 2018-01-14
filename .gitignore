@@ -1,0 +1,8 @@
+# user specific stuff
+.idea/*
+file_frontend/__pycache__/*
+file_frontend/routes/__pycache__/*
+client_secret.json
+
+# logging
+python_logging.log
