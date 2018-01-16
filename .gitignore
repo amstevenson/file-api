@@ -1,0 +1,14 @@
+# user specific stuff
+.idea/*
+file_frontend/__pycache__/*
+file_frontend/routes/__pycache__/*
+client_secret.json
+
+# logging
+python_logging.log
+
+# Byte-compiled / optimized / DLL files
+file_api/__pycache__/
+*.py[cod]
+__pycache__
+*.pyc
