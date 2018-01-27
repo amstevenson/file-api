@@ -1,10 +1,23 @@
 # file-api
 
-A micro-service that is attached to file-frontend. The purpose of which is to send requests to Google Drive and Dropbox API's
-in order to upload files. Both the frontend and api need to be run together in order to achieve this.
+A micro-service that acts as the backend for authenticating a user via Google Drive API's. After authentication, the
+user token will be sent back to file-frontend, which will allow for authenticated file uploads to be performed.
+
+If you are going to make use of this project, you will need to follow the steps related to setting up a Google Drive Api
+project (https://developers.google.com/drive/v3/web/quickstart/python). The secret file will need to be placed in the
+main directory of this service.
 
 ## Running
 
-Easiest way is "python ./manage.py runserver" (or python3 for those who have both).
+Can use a virtualenv, although there isn't much here for now. Quickest way is to use python ./manage.py runserver.
 
-Compatible with venv.
+### Virtualenv
+
+1) Virtualenv venv
+2) source venv/Scripts/activate - for windows
+or source venv/bin/activate - mac
+3) install dependencies (can use requirements.txt for this)
+4) set FLASK_APP variable with
+    "set FLASK_APP=manage.py" (for windows)
+    or "export FLASK_APP=manage.py" (for mac)
+5) flask run
