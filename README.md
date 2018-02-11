@@ -8,11 +8,13 @@ project (https://developers.google.com/drive/v3/web/quickstart/python). The secr
 main directory of this service.
 
 After this file has been placed in the main directory, change the DRIVE_APP_SECRET_KEY environment variable in config.py
-to reflect the value of your secret key found within the file you inserted. 
+to reflect the value of your secret key found within the file you inserted.
 
 ## Running
 
-Can use a virtualenv, although there isn't much here for now. Quickest way is to use python ./manage.py runserver.
+### Fastest way (standalone):
+
+python3 ./manage.py runserver
 
 ### Virtualenv
 
